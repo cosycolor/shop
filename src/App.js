@@ -1,13 +1,14 @@
 /* eslint-disable */
 import './App.css';
-import { Button, Container, Navbar, Nav } from 'react-bootstrap';
+import { Button, Container, Navbar, Nav, Form, InputGroup } from 'react-bootstrap';
 import data from './data.js'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {Routes, Route, Link, useNavigate, Outlet, useParams} from 'react-router-dom';
 import styled from 'styled-components';
+import axios from 'axios';
 
 function App() {
-  let [shoes] = useState(data);
+  let [shoes, setShoes] = useState(data);
   let navigate = useNavigate();
 
 
@@ -23,6 +24,17 @@ function App() {
           </Nav>
         </Container>
       </Navbar>
+      <button onClick={ () => {
+        axios.get('https://codingapple1.github.io/shop/data2.json')
+        .then((result) =>{
+          let tmpA = [...shoes];
+          let tmpB = result.data;
+          setShoes(tmpA.concat(tmpB));
+        })
+        .catch(()=>{
+          console.log('fail');
+        })
+      }}>button</button>
       <Routes>
         <Route path="/" element = {<MainPage shoes={shoes}/>}/>
         <Route path="/detail/:id" element = {<DetailInfo shoes = {shoes} />}/>
@@ -73,10 +85,43 @@ function MainPage(props){
   )}
 
 function DetailInfo(props){
+  let [style, setStyle] = useState(false);
+  let [count, setCount] = useState(0);
+  let [text, setText] = useState('');
+  let [name, setName] = useState('');
+
+  // useEffect(()=>{
+  //   let timer = setTimeout(()=>{
+  //     style = setStyle(!style);
+  //   },2000);
+  //   console.log(count)
+  //   return () =>{
+  //     clearTimeout(timer);
+  //   }
+  // },[count])
+
+  function changeText(e){
+    setStyle(e.target.value);
+    console.log(style);
+  }
+  
+  useEffect(()=>{
+    if(isNaN(style) == true){
+      setStyle(true)
+    }
+  },[style])
+
+  
   let {id} = useParams();
   let product = props.shoes.find((x)=> x.id == id);
   return(
   <div className="container">
+    <input type='text' name='test' onChange={changeText}></input>
+    
+    {/* <div className = "alert alert-warning" style={style == true ? {display : 'none'} : {display :  'block'}}>2초 이내 구매시 할인</div> */}
+    {
+        <div className = "alert alert-warning" style={style == true ? {display : 'block'} : {display :  'none'}}>그러지마세요</div>
+    }
     <div className="row">
     <div className="col-md-6">
       <img src={"https://codingapple1.github.io/shop/shoes"+(Number(product.id)+1)+".jpg"} width="100%" />
@@ -94,7 +139,7 @@ function DetailInfo(props){
 
 function ShoesInfo(props){
   return (
-    <div className="col-md-4">
+    <div className="col-md-4" onClick = { () => {<DetailInfo />}}>
             <img src={"https://codingapple1.github.io/shop/shoes"+props.number+".jpg"} width="80%"></img>
             <h4>{props.data.title}</h4>
             <p>{props.data.price}</p>
