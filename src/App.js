@@ -10,6 +10,8 @@ import axios from 'axios';
 function App() {
   let [shoes, setShoes] = useState(data);
   let navigate = useNavigate();
+  let [clickCount, setClickCount] = useState(0);
+  let [status, setStatus] = useState(false);
 
 
   return (
@@ -25,16 +27,35 @@ function App() {
         </Container>
       </Navbar>
       <button onClick={ () => {
-        axios.get('https://codingapple1.github.io/shop/data2.json')
+        setStatus(true);
+        if(clickCount < 1){
+          axios.get('https://codingapple1.github.io/shop/data2.json')
         .then((result) =>{
-          let tmpA = [...shoes];
-          let tmpB = result.data;
-          setShoes(tmpA.concat(tmpB));
+          // let tmpA = [...shoes];
+          // let tmpB = result.data;
+          // setShoes(tmpA.concat(tmpB));
+          let copy = [...shoes, ...result.data];
+          setShoes(copy);
+          setClickCount(clickCount+1);
+          setStatus(false);
         })
         .catch(()=>{
           console.log('fail');
         })
-      }}>button</button>
+        }else if(clickCount >= 1 && clickCount < 2){
+          setStatus(true);
+          axios.get('https://codingapple1.github.io/shop/data3.json')
+          .then((result) =>{
+            let copy = [...shoes, ...result.data];
+            setShoes(copy);
+            setClickCount(clickCount+1);
+            setStatus(false);
+          })
+        }else{
+          alert('없습니다 신발이')
+        }
+      }}>{status == true ? '로딩중' : '더보기'}</button>
+      
       <Routes>
         <Route path="/" element = {<MainPage shoes={shoes}/>}/>
         <Route path="/detail/:id" element = {<DetailInfo shoes = {shoes} />}/>
@@ -89,7 +110,31 @@ function DetailInfo(props){
   let [count, setCount] = useState(0);
   let [text, setText] = useState('');
   let [name, setName] = useState('');
+  let [tabs, setTabs] = useState(0);
+  let [fade2, setFade2] = useState('');
 
+  useEffect(()=>{
+    setFade2('end')
+  },[props.id]);
+
+function TabContent(){
+  let [fade, setFade] = useState('');
+  useEffect(()=>{
+    setFade('end')
+  },[tabs]);
+
+  if(tabs == 0){
+    return <div className = {"start "+ fade}>내용 0</div>
+  }
+
+  if(tabs == 1){
+    return <div className = {"start "+ fade}>내용 1</div>
+  }
+
+  if(tabs == 2){
+    return <div className = {"start "+ fade}>내용 2</div>
+  }
+}
   // useEffect(()=>{
   //   let timer = setTimeout(()=>{
   //     style = setStyle(!style);
@@ -115,7 +160,7 @@ function DetailInfo(props){
   let {id} = useParams();
   let product = props.shoes.find((x)=> x.id == id);
   return(
-  <div className="container">
+  <div className={"container start "+fade2}>
     <input type='text' name='test' onChange={changeText}></input>
     
     {/* <div className = "alert alert-warning" style={style == true ? {display : 'none'} : {display :  'block'}}>2초 이내 구매시 할인</div> */}
@@ -133,6 +178,18 @@ function DetailInfo(props){
       <button className="btn btn-danger">주문하기</button> 
     </div>
     </div>
+    <Nav variant="tabs" defaultActiveKey="link0">
+      <Nav.Item>
+        <Nav.Link eventKey="link0" onClick={()=>{setTabs(0)}}>버튼0</Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link eventKey="link1" onClick={()=>{setTabs(1)}}>버튼1</Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link eventKey="link2" onClick={()=>{setTabs(2)}}>버튼2</Nav.Link>
+      </Nav.Item>
+    </Nav>
+    <TabContent />
   </div> 
   )
 }
