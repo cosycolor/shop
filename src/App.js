@@ -1,11 +1,12 @@
 /* eslint-disable */
 import './App.css';
 import { Button, Container, Navbar, Nav, Form, InputGroup } from 'react-bootstrap';
-import data from './data.js'
+import data from './data.js';
 import { useEffect, useState } from 'react';
 import {Routes, Route, Link, useNavigate, Outlet, useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
+import Cart from './routes/Cart.js';
 
 function App() {
   let [shoes, setShoes] = useState(data);
@@ -68,6 +69,7 @@ function App() {
           <Route path="one" element = {<p>첫 주문시 양배추즙 서비스</p>}/>
           <Route path="two" element = {<p>생일기념 쿠폰받기</p>}/>
         </Route>
+        <Route path="/cart" element={ <Cart/> }/>
       </Routes>
     </div>
     
