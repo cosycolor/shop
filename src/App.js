@@ -7,12 +7,18 @@ import {Routes, Route, Link, useNavigate, Outlet, useParams} from 'react-router-
 import styled from 'styled-components';
 import axios from 'axios';
 import Cart from './routes/Cart.js';
+import { useDispatch } from 'react-redux';
+import { addCart } from "./store.js"
 
 function App() {
   let [shoes, setShoes] = useState(data);
   let navigate = useNavigate();
   let [clickCount, setClickCount] = useState(0);
   let [status, setStatus] = useState(false);
+
+  useEffect(()=>{
+    localStorage.setItem('watched', JSON.stringify([]))
+  },[])
 
 
   return (
@@ -23,7 +29,7 @@ function App() {
           <Nav className="me-auto">
             <Nav.Link onClick = {() => {navigate('/')}}>Home</Nav.Link>
             <Nav.Link onClick = {() => {navigate('/detail')}}>Detail</Nav.Link>
-            <Nav.Link onClick = {() => navigate('/about')}>About</Nav.Link>
+            <Nav.Link onClick = {() => {navigate('/cart')}}>Cart</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
@@ -115,6 +121,8 @@ function DetailInfo(props){
   let [tabs, setTabs] = useState(0);
   let [fade2, setFade2] = useState('');
 
+  let dispatch = useDispatch();
+
   useEffect(()=>{
     setFade2('end')
   },[props.id]);
@@ -160,6 +168,9 @@ function TabContent(){
 
   
   let {id} = useParams();
+  let watched = JSON.parse(localStorage.getItem('watched'));
+  watched.push(id);
+  localStorage.setItem('watched', JSON.stringify(watched));
   let product = props.shoes.find((x)=> x.id == id);
   return(
   <div className={"container start "+fade2}>
@@ -177,7 +188,9 @@ function TabContent(){
       <h4 className="pt-5">{product.title}</h4>
       <p>{props.shoes[id].content}</p>
       <p>{props.shoes[id].price}</p>
-      <button className="btn btn-danger">주문하기</button> 
+      <button className="btn btn-danger" onClick={()=>{
+        dispatch(addCart({id : props.shoes[id].id, name : props.shoes[id].title, count : 1}))
+      }}>주문하기</button> 
     </div>
     </div>
     <Nav variant="tabs" defaultActiveKey="link0">

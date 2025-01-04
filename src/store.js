@@ -34,12 +34,15 @@ let cart = createSlice({
         data.count += 1;
       }
      })
+    },
+    addCart(state, action){
+     state.push(action.payload);
     }
   } 
 })
 
 export let { changeName, changeAge } = user.actions;
-export let { addCount } = cart.actions;
+export let { addCount, addCart } = cart.actions;
 
 export default configureStore({
   reducer : {
